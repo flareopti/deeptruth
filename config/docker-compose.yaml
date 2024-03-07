@@ -1,0 +1,20 @@
+version: '3.9'
+name: deeptruth_db
+
+services:
+  postgres_db:
+    image: postgres
+
+    environment:
+      POSTGRES_DB: deeptruth
+      POSTGRES_PASSWORD: "qwerty"
+
+    volumes:
+      - ../internal/db/dumps:/dumps
+      - postgres_data:/var/lib/postgresql/data
+
+    ports:
+      - "5444:5432"
+
+volumes:
+  postgres_data:
