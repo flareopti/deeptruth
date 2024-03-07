@@ -21,7 +21,7 @@ Da ya ne eby blyat idi nahui
 1. Wait about 30 seconds while db starts
 1.
     ```bash
-    make tidy     # Only on first run
+    make tidy       # Only on first run
     make migrate-up # Only on first run
     make run
     ```
