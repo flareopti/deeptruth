@@ -1,8 +1,10 @@
 DB_URL = $(shell awk '{if ($$0 ~ /storage/) s=1; if(s == 0) gsub(/.*/,""); if ($$0 ~ /^.$$/ && s==1) exit;} /address/ {gsub(/"/, "");print $$2}' config/config.yaml)
 
+tidy:
+	go mod tidy
 
 compose-up:
-	cd config; docker compose up
+	cd config; docker compose up -d
 
 compose-purge:
 	cd config; docker compose down
