@@ -1,0 +1,335 @@
+definitions:
+  articles.UpdateRatingParam:
+    properties:
+      rating:
+        type: integer
+    type: object
+  authors.UpdateRatingParam:
+    properties:
+      rating:
+        type: integer
+    type: object
+  db.Article:
+    properties:
+      author_id:
+        type: integer
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      rating:
+        description: -1 Stands for not-checked yet, 0-9 is actual rating
+        type: integer
+      title:
+        type: string
+    type: object
+  db.Author:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      rating:
+        description: -1 Stands for not-checked yet, 0-3 is actual rating
+        type: integer
+    type: object
+  db.CreateArticleParams:
+    properties:
+      author_id:
+        type: integer
+      content:
+        type: string
+      rating:
+        type: integer
+      title:
+        type: string
+    type: object
+  db.CreateAuthorParams:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      rating:
+        type: integer
+    type: object
+  resp.Response:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Api for DeepTruth project
+  title: DeepTruth
+  version: 0.0.1
+paths:
+  /api/articles:
+    get:
+      consumes:
+      - application/json
+      description: Get articles with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Articles per page
+        in: query
+        name: per_page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.Article'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/resp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/resp.Response'
+      summary: List articles
+      tags:
+      - articles
+    post:
+      consumes:
+      - application/json
+      description: Create an article
+      parameters:
+      - description: Article to create
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/db.CreateArticleParams'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Article'
+      summary: Create an article
+      tags:
+      - articles
+  /api/articles/{articleID}:
+    delete:
+      description: Delete an article using its ID
+      parameters:
+      - description: Article ID
+        in: path
+        name: articleID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/resp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/resp.Response'
+      summary: Delete an article
+      tags:
+      - articles
+    get:
+      description: Get one article using URL
+      parameters:
+      - description: Article ID
+        in: path
+        name: articleID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Article'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/resp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/resp.Response'
+      summary: Get one article
+      tags:
+      - articles
+    patch:
+      consumes:
+      - application/json
+      description: Update rating of an article
+      parameters:
+      - description: Article ID
+        in: path
+        name: articleID
+        required: true
+        type: integer
+      - description: New rating
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/articles.UpdateRatingParam'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Article'
+      summary: Update rating of an article
+      tags:
+      - articles
+  /api/authors:
+    get:
+      consumes:
+      - application/json
+      description: Get authors with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Authors per page
+        in: query
+        name: per_page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.Author'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/resp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/resp.Response'
+      summary: List authors
+      tags:
+      - authors
+    post:
+      consumes:
+      - application/json
+      description: Create an author
+      parameters:
+      - description: Author to create
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/db.CreateAuthorParams'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Author'
+      summary: Create an author
+      tags:
+      - authors
+  /api/authors/{authorID}:
+    delete:
+      description: Delete an author using their ID
+      parameters:
+      - description: Author ID
+        in: path
+        name: authorID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/resp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/resp.Response'
+      summary: Delete an author
+      tags:
+      - authors
+    get:
+      description: Get one author using ID
+      parameters:
+      - description: Author ID
+        in: path
+        name: authorID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Author'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/resp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/resp.Response'
+      summary: Get one author
+      tags:
+      - authors
+    patch:
+      consumes:
+      - application/json
+      description: Update rating of an author
+      parameters:
+      - description: Author ID
+        in: path
+        name: authorID
+        required: true
+        type: integer
+      - description: New rating
+        in: body
+        name: rating
+        required: true
+        schema:
+          $ref: '#/definitions/authors.UpdateRatingParam'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Author'
+      summary: Update rating of an author
+      tags:
+      - authors
+swagger: "2.0"

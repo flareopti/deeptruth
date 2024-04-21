@@ -7,34 +7,26 @@ package db
 
 import (
 	"context"
-	"time"
 )
 
 const createAuthor = `-- name: CreateAuthor :one
 INSERT INTO authors (
     name,
     rating,
-    description,
-    created_at
+    description
 ) VALUES (
-    $1, $2, $3, $4
+    $1, $2, $3
 ) RETURNING id, name, description, rating, created_at
 `
 
 type CreateAuthorParams struct {
-	Name        string
-	Rating      int64
-	Description string
-	CreatedAt   time.Time
+	Name        string `json:"name"`
+	Rating      int32  `json:"rating"`
+	Description string `json:"description"`
 }
 
 func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Author, error) {
-	row := q.db.QueryRow(ctx, createAuthor,
-		arg.Name,
-		arg.Rating,
-		arg.Description,
-		arg.CreatedAt,
-	)
+	row := q.db.QueryRow(ctx, createAuthor, arg.Name, arg.Rating, arg.Description)
 	var i Author
 	err := row.Scan(
 		&i.ID,
@@ -73,25 +65,25 @@ func (q *Queries) GetAuthor(ctx context.Context, id int64) (Author, error) {
 	return i, err
 }
 
-const listAuthor = `-- name: ListAuthor :many
+const listAuthors = `-- name: ListAuthors :many
 SELECT id, name, description, rating, created_at FROM authors
 ORDER BY id
 LIMIT $1
 OFFSET $2
 `
 
-type ListAuthorParams struct {
-	Limit  int32
-	Offset int32
+type ListAuthorsParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) ListAuthor(ctx context.Context, arg ListAuthorParams) ([]Author, error) {
-	rows, err := q.db.Query(ctx, listAuthor, arg.Limit, arg.Offset)
+func (q *Queries) ListAuthors(ctx context.Context, arg ListAuthorsParams) ([]Author, error) {
+	rows, err := q.db.Query(ctx, listAuthors, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Author
+	items := []Author{}
 	for rows.Next() {
 		var i Author
 		if err := rows.Scan(
@@ -111,20 +103,20 @@ func (q *Queries) ListAuthor(ctx context.Context, arg ListAuthorParams) ([]Autho
 	return items, nil
 }
 
-const updateAuthor = `-- name: UpdateAuthor :one
+const updateAuthorRating = `-- name: UpdateAuthorRating :one
 UPDATE authors
 SET rating = $2
 WHERE id = $1
 RETURNING id, name, description, rating, created_at
 `
 
-type UpdateAuthorParams struct {
-	ID     int64
-	Rating int64
+type UpdateAuthorRatingParams struct {
+	ID     int64 `json:"id"`
+	Rating int32 `json:"rating"`
 }
 
-func (q *Queries) UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) (Author, error) {
-	row := q.db.QueryRow(ctx, updateAuthor, arg.ID, arg.Rating)
+func (q *Queries) UpdateAuthorRating(ctx context.Context, arg UpdateAuthorRatingParams) (Author, error) {
+	row := q.db.QueryRow(ctx, updateAuthorRating, arg.ID, arg.Rating)
 	var i Author
 	err := row.Scan(
 		&i.ID,

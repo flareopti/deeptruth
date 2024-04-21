@@ -6,26 +6,23 @@ package db
 
 import (
 	"time"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Article struct {
-	ID       int64
-	AuthorID pgtype.Int8
-	Title    string
-	Content  string
-	Verdict  string
+	ID       int64  `json:"id"`
+	AuthorID int64  `json:"author_id"`
+	Title    string `json:"title"`
+	Content  string `json:"content"`
 	// -1 Stands for not-checked yet, 0-9 is actual rating
-	Rating    int64
-	CreatedAt time.Time
+	Rating    int32     `json:"rating"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Author struct {
-	ID          int64
-	Name        string
-	Description string
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 	// -1 Stands for not-checked yet, 0-3 is actual rating
-	Rating    int64
-	CreatedAt time.Time
+	Rating    int32     `json:"rating"`
+	CreatedAt time.Time `json:"created_at"`
 }

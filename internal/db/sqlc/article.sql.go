@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createArticle = `-- name: CreateArticle :one
@@ -16,19 +14,17 @@ INSERT INTO articles (
     author_id,
     title,
     content,
-    verdict,
     rating
 ) VALUES (
-    $1, $2, $3, $4, $5
-) RETURNING id, author_id, title, content, verdict, rating, created_at
+    $1, $2, $3, $4
+) RETURNING id, author_id, title, content, rating, created_at
 `
 
 type CreateArticleParams struct {
-	AuthorID pgtype.Int8
-	Title    string
-	Content  string
-	Verdict  string
-	Rating   int64
+	AuthorID int64  `json:"author_id"`
+	Title    string `json:"title"`
+	Content  string `json:"content"`
+	Rating   int32  `json:"rating"`
 }
 
 func (q *Queries) CreateArticle(ctx context.Context, arg CreateArticleParams) (Article, error) {
@@ -36,7 +32,6 @@ func (q *Queries) CreateArticle(ctx context.Context, arg CreateArticleParams) (A
 		arg.AuthorID,
 		arg.Title,
 		arg.Content,
-		arg.Verdict,
 		arg.Rating,
 	)
 	var i Article
@@ -45,7 +40,6 @@ func (q *Queries) CreateArticle(ctx context.Context, arg CreateArticleParams) (A
 		&i.AuthorID,
 		&i.Title,
 		&i.Content,
-		&i.Verdict,
 		&i.Rating,
 		&i.CreatedAt,
 	)
@@ -62,7 +56,7 @@ func (q *Queries) DeleteArticle(ctx context.Context, id int64) error {
 }
 
 const getArticle = `-- name: GetArticle :one
-SELECT id, author_id, title, content, verdict, rating, created_at FROM articles
+SELECT id, author_id, title, content, rating, created_at FROM articles
 WHERE id = $1 LIMIT 1
 `
 
@@ -74,32 +68,42 @@ func (q *Queries) GetArticle(ctx context.Context, id int64) (Article, error) {
 		&i.AuthorID,
 		&i.Title,
 		&i.Content,
-		&i.Verdict,
 		&i.Rating,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
-const listArticle = `-- name: ListArticle :many
-SELECT id, author_id, title, content, verdict, rating, created_at FROM articles
+const getArticlesCount = `-- name: GetArticlesCount :one
+SELECT COUNT(*) FROM articles
+`
+
+func (q *Queries) GetArticlesCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getArticlesCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const listArticles = `-- name: ListArticles :many
+SELECT id, author_id, title, content, rating, created_at FROM articles
 ORDER BY id
 LIMIT $1
 OFFSET $2
 `
 
-type ListArticleParams struct {
-	Limit  int32
-	Offset int32
+type ListArticlesParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) ListArticle(ctx context.Context, arg ListArticleParams) ([]Article, error) {
-	rows, err := q.db.Query(ctx, listArticle, arg.Limit, arg.Offset)
+func (q *Queries) ListArticles(ctx context.Context, arg ListArticlesParams) ([]Article, error) {
+	rows, err := q.db.Query(ctx, listArticles, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Article
+	items := []Article{}
 	for rows.Next() {
 		var i Article
 		if err := rows.Scan(
@@ -107,7 +111,6 @@ func (q *Queries) ListArticle(ctx context.Context, arg ListArticleParams) ([]Art
 			&i.AuthorID,
 			&i.Title,
 			&i.Content,
-			&i.Verdict,
 			&i.Rating,
 			&i.CreatedAt,
 		); err != nil {
@@ -121,28 +124,26 @@ func (q *Queries) ListArticle(ctx context.Context, arg ListArticleParams) ([]Art
 	return items, nil
 }
 
-const updateArticle = `-- name: UpdateArticle :one
+const updateArticleRating = `-- name: UpdateArticleRating :one
 UPDATE articles
-SET rating = $2, verdict = $3
+SET rating = $2
 WHERE id = $1
-RETURNING id, author_id, title, content, verdict, rating, created_at
+RETURNING id, author_id, title, content, rating, created_at
 `
 
-type UpdateArticleParams struct {
-	ID      int64
-	Rating  int64
-	Verdict string
+type UpdateArticleRatingParams struct {
+	ID     int64 `json:"id"`
+	Rating int32 `json:"rating"`
 }
 
-func (q *Queries) UpdateArticle(ctx context.Context, arg UpdateArticleParams) (Article, error) {
-	row := q.db.QueryRow(ctx, updateArticle, arg.ID, arg.Rating, arg.Verdict)
+func (q *Queries) UpdateArticleRating(ctx context.Context, arg UpdateArticleRatingParams) (Article, error) {
+	row := q.db.QueryRow(ctx, updateArticleRating, arg.ID, arg.Rating)
 	var i Article
 	err := row.Scan(
 		&i.ID,
 		&i.AuthorID,
 		&i.Title,
 		&i.Content,
-		&i.Verdict,
 		&i.Rating,
 		&i.CreatedAt,
 	)

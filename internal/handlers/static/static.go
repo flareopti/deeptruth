@@ -1,36 +1,23 @@
 package static
 
 import (
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/go-chi/chi/v5"
 )
 
-type staticHandler struct {
-	staticPath string
-	indexPath  string
-}
+func New(log *slog.Logger, directory string) http.HandlerFunc {
+	workDir, _ := os.Getwd()
+	fullPath := http.Dir(filepath.Join(workDir, directory))
 
-func (h staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	path := filepath.Join(h.staticPath, r.URL.Path)
-
-	stat, err := os.Stat(path)
-	if os.IsNotExist(err) || stat.IsDir() {
-		http.ServeFile(w, r, filepath.Join(h.staticPath, h.indexPath))
-		return
-	}
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
-}
-
-func New(staticPath, indexPath string) staticHandler {
-	return staticHandler{
-		staticPath: staticPath,
-		indexPath:  indexPath,
+	return func(w http.ResponseWriter, r *http.Request) {
+		rctx := chi.RouteContext(r.Context())
+		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
+		fs := http.StripPrefix(pathPrefix, http.FileServer(fullPath))
+		fs.ServeHTTP(w, r)
 	}
 }

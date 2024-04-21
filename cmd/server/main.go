@@ -6,14 +6,22 @@ import (
 	"net/http"
 	"os"
 
+	_ "github.com/flareopti/deeptruth/docs"
 	"github.com/flareopti/deeptruth/internal/config"
 	db "github.com/flareopti/deeptruth/internal/db/sqlc"
+	"github.com/flareopti/deeptruth/internal/handlers/articles"
+	"github.com/flareopti/deeptruth/internal/handlers/authors"
 	"github.com/flareopti/deeptruth/internal/handlers/root"
 	"github.com/flareopti/deeptruth/internal/handlers/static"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
+
+// @title DeepTruth
+// @version 0.0.1
+// @description Api for DeepTruth project
 
 const (
 	envLocal = "local"
@@ -33,13 +41,6 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	router.Route("/", func(r chi.Router) {
-		r.Get("/", root.New(log))
-	})
-
-	static := static.New("frontend/static", "frontend/templates/index.html")
-	router.Handle("/", static)
-
 	srv := http.Server{
 		Addr:         cfg.HTTPServer.Address,
 		Handler:      router,
@@ -48,17 +49,39 @@ func main() {
 		IdleTimeout:  cfg.HTTPServer.IdleTimeout,
 	}
 
-	testConn, err := pgxpool.New(context.Background(), cfg.Storage.Address)
+	conn, err := pgxpool.New(context.Background(), cfg.Storage.Address)
 	if err != nil {
 		log.Error("Can't connect to db : ", err)
 		os.Exit(1)
 	}
 	log.Info("Connected to db")
 
-	testQuery := db.New(testConn)
-	_ = testQuery
+	query := db.New(conn)
 
-	log.Info("Starting server")
+	router.Get("/", root.New(log))
+	router.Get("/static/*", static.New(log, "frontend/static"))
+	router.Route("/api/articles", func(r chi.Router) {
+		r.Get("/", articles.List(log, query))
+		r.Get("/search", articles.Search(log, query))
+		r.Post("/", articles.Create(log, query))
+		r.Route("/{articleID}", func(r chi.Router) {
+			r.Get("/", articles.Get(log, query))
+			r.Patch("/", articles.UpdateRating(log, query))
+			r.Delete("/", articles.Delete(log, query))
+		})
+	})
+	router.Route("/api/authors", func(r chi.Router) {
+		r.Get("/", authors.List(log, query))
+		r.Post("/", authors.Create(log, query))
+		r.Route("/{authorID}", func(r chi.Router) {
+			r.Get("/", authors.Get(log, query))
+			r.Patch("/", authors.UpdateRating(log, query))
+			r.Delete("/", authors.Delete(log, query))
+		})
+	})
+
+	router.Get("/swagger/*", httpSwagger.Handler())
+	log.Info("Starting server", slog.String("address", cfg.HTTPServer.Address))
 	if err := srv.ListenAndServe(); err != nil {
 		log.Error("Failed to start server : ", err)
 	}

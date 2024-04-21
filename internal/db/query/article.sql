@@ -3,25 +3,27 @@ INSERT INTO articles (
     author_id,
     title,
     content,
-    verdict,
     rating
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4
 ) RETURNING *;
 
 -- name: GetArticle :one
 SELECT * FROM articles
 WHERE id = $1 LIMIT 1;
 
--- name: ListArticle :many
+-- name: GetArticlesCount :one
+SELECT COUNT(*) FROM articles;
+
+-- name: ListArticles :many
 SELECT * FROM articles
 ORDER BY id
 LIMIT $1
 OFFSET $2;
 
--- name: UpdateArticle :one
+-- name: UpdateArticleRating :one
 UPDATE articles
-SET rating = $2, verdict = $3
+SET rating = $2
 WHERE id = $1
 RETURNING *;
 

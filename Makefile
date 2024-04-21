@@ -14,13 +14,17 @@ sqlc:
 	cd config; sqlc generate
 
 migrate-up:
-	migrate -path internal/db/migration $(DB_URL) -verbose up
+	migrate -path internal/db/migration -database $(DB_URL) -verbose up
 
 migrate-down:
-	migrate -path internal/db/migration $(DB_URL) -verbose down
+	migrate -path internal/db/migration -database "$(DB_URL)" -verbose down
 
 run:
+	swag init -g cmd/server/main.go
 	export CONFIG_PATH=config/config.yaml; go run cmd/server/main.go
 
 test:
 	go test -v cover ./...
+
+swag:
+	swag init -g cmd/server/main.go

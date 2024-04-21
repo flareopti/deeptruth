@@ -1,10 +1,9 @@
 CREATE TABLE "articles" (
   "id" bigserial PRIMARY KEY,
-  "author_id" bigint,
+  "author_id" bigint NOT NULL,
   "title" varchar NOT NULL,
   "content" varchar NOT NULL,
-  "verdict" varchar NOT NULL,
-  "rating" bigint NOT NULL DEFAULT -1,
+  "rating" int NOT NULL DEFAULT -1,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
@@ -12,7 +11,7 @@ CREATE TABLE "authors" (
   "id" bigserial PRIMARY KEY,
   "name" varchar UNIQUE NOT NULL,
   "description" varchar NOT NULL,
-  "rating" bigint NOT NULL DEFAULT -1,
+  "rating" int NOT NULL DEFAULT -1,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 

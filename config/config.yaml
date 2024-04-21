@@ -2,7 +2,7 @@ env: "local"
 
 storage:
   driver: "postgres"
-  address: "postgresql://postgres:qwerty@localhost:5444/deeptruth/?sslmode=disabled"
+  address: "postgresql://postgres:qwerty@localhost:5444/deeptruth?sslmode=disable"
 
 http_server:
   address: "localhost:8080"
