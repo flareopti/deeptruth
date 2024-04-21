@@ -12,6 +12,7 @@ Da ya ne eby blyat idi nahui
 * [migrate](https://github.com/golang-migrate/migrate)
 * [sqlc](https://sqlc.dev/)
 * [make](https://www.gnu.org/software/make/)
+* [swag](https://github.com/swaggo/swag)
 
 ## How to run
 1.
