@@ -25,6 +25,8 @@ type UpdateRatingParam struct {
 // @Param authorID path int true "Author ID"
 // @Param rating body UpdateRatingParam true "New rating"
 // @Success 200 {object} db.Author
+// @Failure 400 {object} resp.Response
+// @Failure 500 {object} resp.Response
 // @Router /api/authors/{authorID} [patch]
 func UpdateRating(log *slog.Logger, q db.Querier) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

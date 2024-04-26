@@ -18,6 +18,8 @@ import (
 // @Procuce json
 // @Param article body db.CreateArticleParams true "Article to create"
 // @Success 200 {object} db.Article
+// @Failure 400 {object} resp.Response
+// @Failure 500 {object} resp.Response
 // @Router /api/articles [post]
 func Create(log *slog.Logger, q db.Querier) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
