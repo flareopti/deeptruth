@@ -7,6 +7,7 @@ import (
 
 	db "github.com/flareopti/deeptruth/internal/db/sqlc"
 	"github.com/flareopti/deeptruth/internal/lib/api/resp"
+	"github.com/flareopti/deeptruth/internal/lib/sl"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
@@ -32,7 +33,7 @@ func Delete(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		id_int, err := strconv.Atoi(id)
 		if err != nil {
 			log.Error("Failed to convert article id to int")
-			log.Debug("Error:", err)
+			log.Debug("Error", sl.Err(err))
 			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, resp.Error("failed to convert article id to int"))
 			return
@@ -40,7 +41,7 @@ func Delete(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		err = q.DeleteArticle(r.Context(), int64(id_int))
 		if err != nil {
 			log.Error("Failed to delete article")
-			log.Debug("Error:", err)
+			log.Debug("Error", sl.Err(err))
 			w.WriteHeader(http.StatusInternalServerError)
 			render.JSON(w, r, resp.Error("failed to delete article"))
 			return

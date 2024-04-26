@@ -10,11 +10,18 @@ services:
       POSTGRES_PASSWORD: "qwerty"
 
     volumes:
-      - ../internal/db/dumps:/dumps
+      - ./internal/db/dumps:/dumps
       - postgres_data:/var/lib/postgresql/data
-
+  
+  app:
+    container_name: deeptruth_runtime
+    build: .
     ports:
-      - "5444:5432"
+      - "8083:8083"
+    depends_on:
+      - postgres_db
+    links:
+      - "postgres_db:db"
 
 volumes:
   postgres_data:

@@ -3,11 +3,8 @@ DB_URL = $(shell awk '{if ($$0 ~ /storage/) s=1; if(s == 0) gsub(/.*/,""); if ($
 tidy:
 	go mod tidy
 
-compose-up:
-	cd config; docker compose up -d
-
 compose-purge:
-	cd config; docker compose down
+	docker compose down
 	docker volume remove deeptruth_db_postgres_data
 
 sqlc:
@@ -21,10 +18,22 @@ migrate-down:
 
 run:
 	swag init -g cmd/server/main.go
-	export CONFIG_PATH=config/config.yaml; go run cmd/server/main.go
+	export CONFIG_PATH=config/config-local.yaml; go run cmd/server/main.go
 
 test:
 	go test -v cover ./...
 
 swag:
 	swag init -g cmd/server/main.go
+
+docker-build:
+	sudo docker build -t deeptruth .
+
+compose-up:
+	sudo docker compose up --build
+
+compose-down:
+	sudo docker compose down
+
+run-db:
+	sudo docker compose -f docker-compose-db.yaml up -d

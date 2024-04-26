@@ -7,6 +7,7 @@ import (
 
 	db "github.com/flareopti/deeptruth/internal/db/sqlc"
 	"github.com/flareopti/deeptruth/internal/lib/api/resp"
+	"github.com/flareopti/deeptruth/internal/lib/sl"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
@@ -36,7 +37,7 @@ func UpdateRating(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		id_int, err := strconv.Atoi(id)
 		if err != nil {
 			log.Error("Failed to convert author id to int")
-			log.Debug("Error:", err)
+			log.Debug("Error", sl.Err(err))
 			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, resp.Error("failed to convert author id to int"))
 			return
@@ -50,7 +51,7 @@ func UpdateRating(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Error("Failed to decode request body")
-			log.Debug("Error:", err)
+			log.Debug("Error", sl.Err(err))
 			render.JSON(w, r, resp.Error("Failed to decode request"))
 			return
 		}

@@ -15,9 +15,11 @@ Da ya ne eby blyat idi nahui
 * [swag](https://github.com/swaggo/swag)
 
 ## How to run
+
+### Locally
 1.
     ```bash
-    make compose-up
+    make run-db
     ```
 1. Wait about 30 seconds while db starts
 1.
@@ -25,4 +27,10 @@ Da ya ne eby blyat idi nahui
     make tidy       # Only on first run
     make migrate-up # Only on first run
     make run
+    ```
+
+### Using docker
+1.
+    ```bash
+    make compose-up
     ```

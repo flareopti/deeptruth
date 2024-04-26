@@ -1,0 +1,11 @@
+env: "local"
+
+storage:
+  driver: "postgres"
+  address: "postgresql://postgres:qwerty@localhost:5432/deeptruth?sslmode=disable" # For local run
+  migration: "file://internal/db/migration/"
+
+http_server:
+  address: "0.0.0.0:8083"
+  timeout: 4s
+  idle_timeout: 60s

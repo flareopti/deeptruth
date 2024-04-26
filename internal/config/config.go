@@ -15,8 +15,9 @@ type Config struct {
 }
 
 type Storage struct {
-	Driver  string `yaml:"driver" env-default:"postgres"`
-	Address string `yaml:"address" env-required:"true"`
+	Driver    string `yaml:"driver" env-default:"postgres"`
+	Address   string `yaml:"address" env-required:"true"`
+	Migration string `yaml:"migration" env-required:"true"`
 }
 
 type HTTPServer struct {

@@ -13,8 +13,12 @@ import (
 	"github.com/flareopti/deeptruth/internal/handlers/authors"
 	"github.com/flareopti/deeptruth/internal/handlers/root"
 	"github.com/flareopti/deeptruth/internal/handlers/static"
+	"github.com/flareopti/deeptruth/internal/lib/sl"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
@@ -51,10 +55,16 @@ func main() {
 
 	conn, err := pgxpool.New(context.Background(), cfg.Storage.Address)
 	if err != nil {
-		log.Error("Can't connect to db : ", err)
+		log.Error("Wrong URI for db", sl.Err(err))
+		os.Exit(1)
+	}
+	err = conn.Ping(context.Background())
+	if err != nil {
+		log.Error("Can't connect to db", sl.Err(err))
 		os.Exit(1)
 	}
 	log.Info("Connected to db")
+	runDBMigration(cfg.Storage.Migration, cfg.Storage.Address, log)
 
 	query := db.New(conn)
 
@@ -83,10 +93,21 @@ func main() {
 	router.Get("/swagger/*", httpSwagger.Handler())
 	log.Info("Starting server", slog.String("address", cfg.HTTPServer.Address))
 	if err := srv.ListenAndServe(); err != nil {
-		log.Error("Failed to start server : ", err)
+		log.Error("Failed to start server", sl.Err(err))
 	}
 
 	log.Error("Server stopped")
+}
+
+func runDBMigration(migrationURL string, dbSource string, log *slog.Logger) {
+	migration, err := migrate.New(migrationURL, dbSource)
+	if err != nil {
+		log.Debug("Cannot create migrate instance", sl.Err(err))
+	}
+	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Debug("Failed to migrate up")
+	}
+	log.Info("Db migrated successfully")
 }
 
 func setupLogger(env string) *slog.Logger {

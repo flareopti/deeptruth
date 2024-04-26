@@ -42,6 +42,7 @@ func List(log *slog.Logger, q db.Querier) http.HandlerFunc {
 			Limit:  int32(query_page*per_page + per_page),
 			Offset: int32(query_page * per_page),
 		})
+
 		if len(authors) == 0 {
 			w.WriteHeader(http.StatusInternalServerError)
 			render.JSON(w, r, resp.Error("no authors for you buddy"))

@@ -7,6 +7,7 @@ import (
 
 	db "github.com/flareopti/deeptruth/internal/db/sqlc"
 	"github.com/flareopti/deeptruth/internal/lib/api/resp"
+	"github.com/flareopti/deeptruth/internal/lib/sl"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
@@ -32,7 +33,7 @@ func Get(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		idInt, err := strconv.Atoi(id)
 		if err != nil {
 			log.Error("Failed to convert author id to int")
-			log.Debug("Error:", err)
+			log.Debug("Error", sl.Err(err))
 			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, resp.Error("failed to convert author id to int"))
 			return
@@ -40,7 +41,7 @@ func Get(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		author, err := q.GetAuthor(r.Context(), int64(idInt))
 		if err != nil {
 			log.Error("Failed to fetch author")
-			log.Debug("Error:", err)
+			log.Debug("Error", sl.Err(err))
 			w.WriteHeader(http.StatusInternalServerError)
 			render.JSON(w, r, resp.Error("failed to fetch author"))
 			return

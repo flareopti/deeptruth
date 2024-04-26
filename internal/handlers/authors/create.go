@@ -6,6 +6,7 @@ import (
 
 	db "github.com/flareopti/deeptruth/internal/db/sqlc"
 	"github.com/flareopti/deeptruth/internal/lib/api/resp"
+	"github.com/flareopti/deeptruth/internal/lib/sl"
 	"github.com/go-chi/render"
 )
 
@@ -25,7 +26,7 @@ func Create(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Error("Failed to decode request body")
-			log.Debug("Error:", err)
+			log.Debug("Error", sl.Err(err))
 			render.JSON(w, r, resp.Error("Failed to decode request"))
 			return
 		}
@@ -33,7 +34,7 @@ func Create(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Error("Failed to create author")
-			log.Debug("Error:", err)
+			log.Debug("Error", sl.Err(err))
 			render.JSON(w, r, resp.Error("Failed to create author"))
 			return
 		}
