@@ -38,8 +38,7 @@ func UpdateRating(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		}
 		id_int, err := strconv.Atoi(id)
 		if err != nil {
-			log.Error("Failed to convert author id to int")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to convert author id to int", sl.Err(err))
 			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, resp.Error("failed to convert author id to int"))
 			return
@@ -52,16 +51,14 @@ func UpdateRating(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		}
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			log.Error("Failed to decode request body")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to decode request body", sl.Err(err))
 			render.JSON(w, r, resp.Error("Failed to decode request"))
 			return
 		}
 		author, err := q.UpdateAuthorRating(r.Context(), author_params)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			log.Error("Failed to update author")
-			log.Debug("Error:", err)
+			log.Error("Failed to update author", sl.Err(err))
 			render.JSON(w, r, resp.Error("Failed to update author"))
 			return
 		}

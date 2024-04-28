@@ -18,6 +18,8 @@ import (
 // @Procuce json
 // @Param author body db.CreateAuthorParams true "Author to create"
 // @Success 200 {object} db.Author
+// @Failure 400 {object} resp.Response
+// @Failure 500 {object} resp.Response
 // @Router /api/authors [post]
 func Create(log *slog.Logger, q db.Querier) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -25,19 +27,18 @@ func Create(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		err := render.DecodeJSON(r.Body, &authorParams)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			log.Error("Failed to decode request body")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to decode request body", sl.Err(err))
 			render.JSON(w, r, resp.Error("Failed to decode request"))
 			return
 		}
 		author, err := q.CreateAuthor(r.Context(), authorParams)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			log.Error("Failed to create author")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to create author", sl.Err(err))
 			render.JSON(w, r, resp.Error("Failed to create author"))
 			return
 		}
+		w.WriteHeader(http.StatusCreated)
 		render.JSON(w, r, author)
 	}
 }

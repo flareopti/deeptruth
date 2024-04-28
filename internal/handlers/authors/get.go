@@ -1,6 +1,7 @@
 package authors
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -20,6 +21,7 @@ import (
 // @Param authorID path int true "Author ID"
 // @Success 200 {object} db.Author
 // @Failure 400 {object} resp.Response
+// @Failure 404 {object} resp.Response
 // @Failure 500 {object} resp.Response
 // @Router /api/authors/{authorID} [get]
 func Get(log *slog.Logger, q db.Querier) http.HandlerFunc {
@@ -32,16 +34,19 @@ func Get(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		}
 		idInt, err := strconv.Atoi(id)
 		if err != nil {
-			log.Error("Failed to convert author id to int")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to convert author id to int", sl.Err(err))
 			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, resp.Error("failed to convert author id to int"))
 			return
 		}
 		author, err := q.GetAuthor(r.Context(), int64(idInt))
 		if err != nil {
-			log.Error("Failed to fetch author")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to fetch author", sl.Err(err))
+			if errors.Is(err, db.ErrNoRows) {
+				w.WriteHeader(http.StatusNotFound)
+				render.JSON(w, r, resp.Error("author not found"))
+				return
+			}
 			w.WriteHeader(http.StatusInternalServerError)
 			render.JSON(w, r, resp.Error("failed to fetch author"))
 			return

@@ -32,16 +32,14 @@ func Delete(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		}
 		id_int, err := strconv.Atoi(id)
 		if err != nil {
-			log.Error("Failed to convert author id to int")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to convert author id to int", sl.Err(err))
 			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, resp.Error("failed to convert author id to int"))
 			return
 		}
 		err = q.DeleteAuthor(r.Context(), int64(id_int))
 		if err != nil {
-			log.Error("Failed to delete author")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to delete author", sl.Err(err))
 			w.WriteHeader(http.StatusInternalServerError)
 			render.JSON(w, r, resp.Error("failed to delete author"))
 			return

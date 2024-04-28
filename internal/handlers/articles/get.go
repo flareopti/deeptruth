@@ -1,6 +1,7 @@
 package articles
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -20,6 +21,7 @@ import (
 // @Param articleID path int true "Article ID"
 // @Success 200 {object} db.Article
 // @Failure 400 {object} resp.Response
+// @Failure 404 {object} resp.Response
 // @Failure 500 {object} resp.Response
 // @Router /api/articles/{articleID} [get]
 func Get(log *slog.Logger, q db.Querier) http.HandlerFunc {
@@ -32,16 +34,19 @@ func Get(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		}
 		id_int, err := strconv.Atoi(id)
 		if err != nil {
-			log.Error("Failed to convert article id to int")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to convert article id to int", sl.Err(err))
 			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, resp.Error("failed to convert article id to int"))
 			return
 		}
 		article, err := q.GetArticle(r.Context(), int64(id_int))
 		if err != nil {
-			log.Error("Failed to fetch article")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to fetch article", sl.Err(err))
+			if errors.Is(err, db.ErrNoRows) {
+				w.WriteHeader(http.StatusNotFound)
+				render.JSON(w, r, resp.Error("article not found"))
+				return
+			}
 			w.WriteHeader(http.StatusInternalServerError)
 			render.JSON(w, r, resp.Error("failed to fetch article"))
 			return

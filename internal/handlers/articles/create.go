@@ -27,16 +27,14 @@ func Create(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		err := render.DecodeJSON(r.Body, &article_params)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			log.Error("Failed to decode request body")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to decode request body", sl.Err(err))
 			render.JSON(w, r, resp.Error("Failed to decode request"))
 			return
 		}
 		article, err := q.CreateArticle(r.Context(), article_params)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			log.Error("Failed to create article")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to create article", sl.Err(err))
 			render.JSON(w, r, resp.Error("Failed to create article"))
 			return
 		}

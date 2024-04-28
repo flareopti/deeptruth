@@ -21,6 +21,7 @@ import (
 //	@Param			per_page query int true "Articles per page"
 //	@Success		200	{array}		db.Article
 //	@Failure		400	{object}	resp.Response
+//	@Failure		404	{object}	resp.Response
 //	@Failure		500	{object}	resp.Response
 //	@Router			/api/articles [get]
 func List(log *slog.Logger, q db.Querier) http.HandlerFunc {
@@ -42,14 +43,15 @@ func List(log *slog.Logger, q db.Querier) http.HandlerFunc {
 			Limit:  int32(query_page*per_page + per_page),
 			Offset: int32(query_page * per_page),
 		})
-		if len(articles) == 0 {
-			w.WriteHeader(http.StatusInternalServerError)
-			render.JSON(w, r, resp.Error("no articles for you buddy"))
-			return
-		}
+
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			render.JSON(w, r, resp.Error("failed to fetch articles"))
+			return
+		}
+		if len(articles) == 0 {
+			w.WriteHeader(http.StatusNotFound)
+			render.JSON(w, r, resp.Error("no articles found for this query"))
 			return
 		}
 		render.JSON(w, r, articles)

@@ -32,16 +32,14 @@ func Delete(log *slog.Logger, q db.Querier) http.HandlerFunc {
 		}
 		id_int, err := strconv.Atoi(id)
 		if err != nil {
-			log.Error("Failed to convert article id to int")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to convert article id to int", sl.Err(err))
 			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, resp.Error("failed to convert article id to int"))
 			return
 		}
 		err = q.DeleteArticle(r.Context(), int64(id_int))
 		if err != nil {
-			log.Error("Failed to delete article")
-			log.Debug("Error", sl.Err(err))
+			log.Error("Failed to delete article", sl.Err(err))
 			w.WriteHeader(http.StatusInternalServerError)
 			render.JSON(w, r, resp.Error("failed to delete article"))
 			return
