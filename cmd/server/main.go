@@ -75,6 +75,7 @@ func main() {
 		r.Get("/search", articles.Search(log, query))
 		r.Post("/", articles.Create(log, query))
 		r.Route("/{articleID}", func(r chi.Router) {
+			r.Post("/", articles.Estimate(log, query))
 			r.Get("/", articles.Get(log, query))
 			r.Patch("/", articles.UpdateRating(log, query))
 			r.Delete("/", articles.Delete(log, query))

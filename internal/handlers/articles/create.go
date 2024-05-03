@@ -23,6 +23,7 @@ import (
 // @Router /api/articles [post]
 func Create(log *slog.Logger, q db.Querier) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		var article_params db.CreateArticleParams
 		err := render.DecodeJSON(r.Body, &article_params)
 		if err != nil {

@@ -26,6 +26,7 @@ import (
 //	@Router			/api/articles [get]
 func List(log *slog.Logger, q db.Querier) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		query_page, err := strconv.Atoi(r.URL.Query().Get("page"))
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)

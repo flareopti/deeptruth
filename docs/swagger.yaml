@@ -226,6 +226,34 @@ paths:
       summary: Update rating of an article
       tags:
       - articles
+    post:
+      description: Estimate fuckness
+      parameters:
+      - description: Article ID
+        in: path
+        name: articleID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Article'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/resp.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/resp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/resp.Response'
+      summary: Estimate fuckness
+      tags:
+      - articles
   /api/authors:
     get:
       consumes:

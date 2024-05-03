@@ -30,6 +30,7 @@ type UpdateRatingParam struct {
 // @Router /api/articles/{articleID} [patch]
 func UpdateRating(log *slog.Logger, q db.Querier) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		id := chi.URLParam(r, "articleID")
 		if id == "" {
 			w.WriteHeader(http.StatusBadRequest)

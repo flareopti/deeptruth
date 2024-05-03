@@ -24,6 +24,7 @@ import (
 // @Router /api/articles/{articleID} [delete]
 func Delete(log *slog.Logger, q db.Querier) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		id := chi.URLParam(r, "articleID")
 		if id == "" {
 			w.WriteHeader(http.StatusBadRequest)
