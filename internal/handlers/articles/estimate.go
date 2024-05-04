@@ -96,10 +96,14 @@ func getOpenaiRating(log *slog.Logger, article db.Article) int32 {
 	log.Debug(string(response))
 	re, err := regexp.Compile(`rating:(\d+)`)
 	if err != nil {
-		log.Error("Failed to find rating", sl.Err(err))
+		log.Error("Failed to compile regex", sl.Err(err))
 		return -1
 	}
 	rating_string := re.FindStringSubmatch(string(response))
+	if len(rating_string) < 2 {
+		log.Error("Failed to find rating")
+		return -1
+	}
 	rating, err := strconv.Atoi(rating_string[1])
 	if err != nil {
 		log.Error("Failed to convert", sl.Err(err))
