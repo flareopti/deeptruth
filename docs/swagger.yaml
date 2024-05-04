@@ -59,6 +59,13 @@ definitions:
       rating:
         type: integer
     type: object
+  db.UpdateArticleRatingParams:
+    properties:
+      id:
+        type: integer
+      rating:
+        type: integer
+    type: object
   resp.Response:
     properties:
       error:
@@ -238,7 +245,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.Article'
+            $ref: '#/definitions/db.UpdateArticleRatingParams'
         "400":
           description: Bad Request
           schema:

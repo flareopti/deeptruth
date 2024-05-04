@@ -178,7 +178,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.Article"
+                            "$ref": "#/definitions/db.UpdateArticleRatingParams"
                         }
                     },
                     "400": {
@@ -609,6 +609,17 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.UpdateArticleRatingParams": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
                 },
                 "rating": {
                     "type": "integer"
