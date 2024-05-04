@@ -93,6 +93,7 @@ func getOpenaiRating(log *slog.Logger, article db.Article) int32 {
 		log.Error("Failed to read response", sl.Err(err))
 		return -1
 	}
+	log.Debug(string(response))
 	re, err := regexp.Compile(`rating:(\d+)`)
 	if err != nil {
 		log.Error("Failed to find rating", sl.Err(err))
